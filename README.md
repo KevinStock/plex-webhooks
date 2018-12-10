@@ -25,3 +25,4 @@ Different behaviors are enabled for different rooms but for all rooms, the light
 2. multer
 3. request
 4. img-color
+5. dotenv
