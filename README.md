@@ -15,8 +15,6 @@ Different behaviors are enabled for different rooms but for all rooms, the light
   - `PLEXADDRESS` is your plex server URL
   - `PLEXTOKEN` is your Plex Authentication Token
   - `LIFXAUTH` is your LIFX Authentication Token
-  - `APPLETVS` is a key/value pair for your AppleTVs and their UUID (keys and key order should match the `LIFXGROUPIDS` keys)
-  - `LIFXGROUPIDS` is a key/value pair for your LIFX Bulb Group IDs (keys and key order should match the `APPLETVS` keys)
 3. `npm install`
   - Install all dependencies
 4. `npm run start`
