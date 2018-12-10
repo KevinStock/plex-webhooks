@@ -1,0 +1,24 @@
+{
+  "name": "plex-webhooks",
+  "author": {
+    "name": "Kevin Stock",
+    "email": "kevin@kevinstock.net",
+    "url": "http://www.kevinstock.net"
+  },
+  "version": "0.0.1",
+  "description": "Control lifx Lights through Plex webhooks",
+  "private": true,
+  "scripts": {
+    "setup": "node setup.js",
+    "start": "node plexWebhooks.js"
+  },
+  "dependencies": {
+    "dotenv": "^6.2.0",
+    "express": "^4.14.0",
+    "img-color": "^1.0.2",
+    "multer": "^1.3.0",
+    "npm": "^6.4.1",
+    "request": "^2.79.0"
+  },
+  "devDependencies": {}
+}
