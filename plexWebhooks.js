@@ -1,11 +1,11 @@
 require('dotenv').load();
 // Dependencies
-var express = require('express'),
-  request = require('request'),
-  multer = require('multer'),
-  color = require('img-color'),
-  app = express(),
-  upload = multer({
+const express = require('express');
+const request = require('request');
+const multer = require('multer');
+const color = require('img-color');
+const app = express();
+const upload = multer({
     dest: '/tmp/'
   });
 
@@ -81,7 +81,6 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
     else if (payload.event == 'media.stop') {
       // Only turn the lights on if in the Living Room
       if (getKeyByValue(APPLETVS, payload.Player.uuid) == 'LivingRoom') {
-        color = "white";
         console.log('Media Stopped: Turning lights up.');
         options.body = {
           "power": "on",
