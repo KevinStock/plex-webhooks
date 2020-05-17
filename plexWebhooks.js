@@ -27,8 +27,18 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
   console.log('Got webhook for', payload.event);
 
   // Get Media Details
+//  console.log(payload.Metadata);
   var mediaTitle = payload.Metadata.grandparentTitle;
-  var mediaImage = process.env.PLEXADDRESS + payload.Metadata.grandparentThumb + '?X-Plex-Token=' + process.env.PLEXTOKEN;
+  if (payload.Metadata.live == '1') {
+	  var mediaImage = payload.Metadata.grandparentThumb;
+  }
+  else if (payload.Metadata.librarySectionType == 'movie'){
+	  var mediaImage = process.env.PLEXADDRESS + payload.Metadata.thumb + '?X-Plex-Token=' + process.env.PLEXTOKEN;
+  }
+  else {
+  	  var mediaImage = process.env.PLEXADDRESS + payload.Metadata.grandparentThumb + '?X-Plex-Token=' + process.env.PLEXTOKEN;
+  }
+
   // Log Player ID
   console.log('Player ID: ' + payload.Player.uuid + ' (' + getKeyByValue(APPLETVS, payload.Player.uuid) + ')');
 
@@ -47,10 +57,11 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
     // Media is Started
     if (payload.event == 'media.play' || payload.event == 'media.resume') {
       // Turn light off.
-      console.log('Media Played: Turning lights down.');
+      console.log('Playing ', mediaTitle);
+      console.log('Turning lights down.');
       options.body = {
         "power": "on",
-        "brightness": 0.25
+        "brightness": 0.10
       };
       color.getDominantColor(mediaImage)
         .then(function(col) {
@@ -63,10 +74,11 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
     // Media Paused
     else if (payload.event == 'media.pause') {
       // Turn light on.
-      console.log('Media Paused: Turning lights up.');
+      console.log('Pausing ', mediaTitle);
+      console.log('Turning lights up.');
       options.body = {
         "power": "on",
-        "brightness": 1.0
+        "brightness": 0.5
       };
       color.getDominantColor(mediaImage)
         .then(function(col) {
@@ -81,7 +93,8 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
     else if (payload.event == 'media.stop') {
       // Only turn the lights on if in the Living Room
       if (getKeyByValue(APPLETVS, payload.Player.uuid) == 'LivingRoom') {
-        console.log('Media Stopped: Turning lights up.');
+        console.log('Stopped Playing ', mediaTitle);
+        console.log('Turning lights up.');
         options.body = {
           "power": "on",
           "color": "white",
