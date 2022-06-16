@@ -9,8 +9,38 @@ const upload = multer({
     dest: '/tmp/'
   });
 
+// curtosey of leszek.hanusz on stackoverflow
+// https://stackoverflow.com/a/36887315
+// add timestamp to log messages
+var log = console.log;
+
+console.log = function () {
+    var first_parameter = arguments[0];
+    var other_parameters = Array.prototype.slice.call(arguments, 1);
+
+    function formatConsoleDate (date) {
+        var hour = date.getHours();
+        var minutes = date.getMinutes();
+        var seconds = date.getSeconds();
+        var milliseconds = date.getMilliseconds();
+
+        return '[' +
+               ((hour < 10) ? '0' + hour: hour) +
+               ':' +
+               ((minutes < 10) ? '0' + minutes: minutes) +
+               ':' +
+               ((seconds < 10) ? '0' + seconds: seconds) +
+               '.' +
+               ('00' + milliseconds).slice(-3) +
+               '] ';
+    }
+
+    log.apply(console, [formatConsoleDate(new Date()) + first_parameter].concat(other_parameters));
+};
+
+
 // Apple TVs
-var APPLETVS = {'LivingRoom': 'EB5D43ED-416A-4C96-AC21-997582561DBD',
+var APPLETVS = {'LivingRoom': '03D6A088-19FC-42FD-9168-23FDD4A371C1',
             'Bedroom': '18114917-2071-4486-BDFF-0B87897A8655',
             'Basement': '73E643FA-7653-4D77-977E-44859DFDF491'}
 
@@ -130,4 +160,4 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
   }
 });
 
-app.listen(3100);
+app.listen(3101);
