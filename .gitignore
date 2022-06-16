@@ -1,3 +1,5 @@
 @eaDir/
 node_modules/
 .env
+.out
+.DS_Store
