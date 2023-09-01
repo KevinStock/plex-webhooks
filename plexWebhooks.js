@@ -64,17 +64,17 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
   }
 
   // Log Player ID
-  console.log('Player Name: ' + payload.Player.name);
+  console.log('Player Name: ' + payload.Player.title);
 
   // Actions for Known Devices
-  if (isKnownDevice(payload.Player.name) && payload.Metadata.type != 'track') {
+  if (isKnownDevice(payload.Player.title) && payload.Metadata.type != 'track') {
     var light_group = DEVICE_PAIRS[payload.Player.name];
     var options = {
       method: 'PUT',
       json: true,
       url: 'https://api.lifx.com/v1/lights/group_id:' + light_group + '/state',
       headers: {
-         'Authorization': process.env.LIFXAUTH
+         'Authorization': `Bearer ${process.env.LIFXAUTH}`
       }
     }
 
@@ -116,7 +116,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
     // Media Stopped
     else if (payload.event == 'media.stop') {
       // Only turn the lights on if in the Living Room
-      if (payload.Player.name == 'ATV - Living Room') {
+      if (payload.Player.title == 'ATV - Living Room') {
         console.log('Stopped Playing ', mediaTitle);
         console.log('Turning lights up.');
         options.body = {
