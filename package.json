@@ -5,7 +5,7 @@
     "email": "kevin@kevinstock.net",
     "url": "http://www.kevinstock.net"
   },
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Control lifx Lights through Plex webhooks",
   "private": true,
   "scripts": {

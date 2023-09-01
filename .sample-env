@@ -1,8 +1,0 @@
-// Plex Server Address
-PLEXADDRESS = fake_url;
-
-// Plex Token
-PLEXTOKEN = fake_token;
-
-// lifx Auth
-LIFXAUTH = fake_secret;
