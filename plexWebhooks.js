@@ -7,7 +7,7 @@ const color = require('img-color');
 const app = express();
 const upload = multer({
     dest: '/tmp/'
-  });
+});
 
 // curtosey of leszek.hanusz on stackoverflow
 // https://stackoverflow.com/a/36887315
@@ -38,17 +38,12 @@ console.log = function () {
     log.apply(console, [formatConsoleDate(new Date()) + first_parameter].concat(other_parameters));
 };
 
-
-// Apple TVs
-var APPLETVS = {'LivingRoom': '03D6A088-19FC-42FD-9168-23FDD4A371C1',
-            'Bedroom': '18114917-2071-4486-BDFF-0B87897A8655',
-            'Basement': '73E643FA-7653-4D77-977E-44859DFDF491'}
-
-// LIFX Bulb Groups
-var LIFXGROUPIDS = {'LivingRoom': '258662f1abbffed5d7410280860b9eef',
-                'Bedroom': '93cfa6a8b2266c52e55e5c7c18b3ac44',
-                'Basement': '603d06fdac6d5390eb80d58fcf4e9861'}
-
+// Device Pairs
+var DEVICE_PAIRS = {};
+for (let i = 1; process.env[`DEVICE_PAIR_${i}`]; i++) {
+  const [lifxGroupId, plexDeviceName] = process.env[`DEVICE_PAIR_${i}`].split(',');
+  DEVICE_PAIRS[plexDeviceName] = lifxGroupId;
+}
 
 console.log('Listening...');
 
@@ -57,7 +52,6 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
   console.log('Got webhook for', payload.event);
 
   // Get Media Details
-//  console.log(payload.Metadata);
   var mediaTitle = payload.Metadata.grandparentTitle;
   if (payload.Metadata.live == '1') {
 	  var mediaImage = payload.Metadata.grandparentThumb;
@@ -70,11 +64,11 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
   }
 
   // Log Player ID
-  console.log('Player ID: ' + payload.Player.uuid + ' (' + getKeyByValue(APPLETVS, payload.Player.uuid) + ')');
+  console.log('Player Name: ' + payload.Player.name);
 
-  // Actions for Apple TVs
-  if (isAppleTV(payload.Player.uuid) && payload.Metadata.type != 'track') {
-    var light_group = LIFXGROUPIDS[getKeyByValue(APPLETVS, payload.Player.uuid)];
+  // Actions for Known Devices
+  if (isKnownDevice(payload.Player.name) && payload.Metadata.type != 'track') {
+    var light_group = DEVICE_PAIRS[payload.Player.name];
     var options = {
       method: 'PUT',
       json: true,
@@ -122,7 +116,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
     // Media Stopped
     else if (payload.event == 'media.stop') {
       // Only turn the lights on if in the Living Room
-      if (getKeyByValue(APPLETVS, payload.Player.uuid) == 'LivingRoom') {
+      if (payload.Player.name == 'ATV - Living Room') {
         console.log('Stopped Playing ', mediaTitle);
         console.log('Turning lights up.');
         options.body = {
@@ -145,13 +139,8 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
   res.sendStatus(200);
 
   // Function to check if Player is an AppleTV
-  function isAppleTV(uuid) {
-    for (appleTV in APPLETVS){
-      if (APPLETVS[appleTV] == uuid) {
-        return true;
-      }
-    }
-    return false;
+  function isKnownDevice(name) {
+    return Object.values(DEVICE_PAIRS).includes(name);
   }
 
   // Function to get Key by Value from associative array
