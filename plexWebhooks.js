@@ -83,7 +83,14 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
       color.getDominantColor(mediaImage)
         .then(function(col) {
           options.body.color = "#" + col.dColor;
-          request(options);
+          request(options, function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+              console.log('Request successful!');
+            } else {
+              console.log('Request failed with status code: ' + response.statusCode);
+              console.log('Error: ', error);
+            }
+          });
         })
         .catch(err => console.error(err));
     }
@@ -100,7 +107,14 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
       color.getDominantColor(mediaImage)
         .then(function(col) {
           options.body.color = "#" + col.dColor;
-          request(options);
+          request(options, function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+              console.log('Request successful!');
+            } else {
+              console.log('Request failed with status code: ' + response.statusCode);
+              console.log('Error: ', error);
+            }
+          });
         })
         .catch(err => console.error(err));
 
@@ -126,7 +140,14 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
           "power": "off"
         }
       }
-    request(options);
+    request(options, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        console.log('Request successful!');
+      } else {
+        console.log('Request failed with status code: ' + response.statusCode);
+        console.log('Error: ', error);
+      }
+    });
     }
   }
   res.sendStatus(200);
