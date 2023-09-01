@@ -65,7 +65,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
     var options = {
       method: 'PUT',
       json: true,
-      url: 'https://api.lifx.com/v1/lights/group_id:' + light_group + '/state',
+      url: 'https://api.lifx.com/v1/lights/group:' + light_group + '/state',
       headers: {
          'Authorization': `Bearer ${config.LIFXAUTH}`
       }
