@@ -57,7 +57,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
   }
 
   // Log Player ID
-  console.log('Player Name: ' + payload.Player.title);
+  console.log(`Player Name: ${payload.Player.title} (${payload.Player.uuid})`);
 
   // Actions for Known Devices
   if (isKnownDevice(payload.Player.uuid) && payload.Metadata.type != 'track') {
@@ -131,9 +131,9 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
   }
   res.sendStatus(200);
 
-  // Function to check if Player is an AppleTV
+  // Function to check if Player is a known device
   function isKnownDevice(uuid) {
-    return Object.values(config.DEVICE_PAIRS).includes(uuid);
+    return Object.keys(config.DEVICE_PAIRS).includes(uuid);
   }
 
   // Function to get Key by Value from associative array
