@@ -85,12 +85,12 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
           options.body.color = "#" + col.dColor;
           request(options, function (error, response, body) {
             if (!error) {
-              var bodyJson = JSON.parse(body);
-              bodyJson.forEach(function(item) {
+              var responseBodyJson = JSON.parse(response.body);
+              responseBodyJson.forEach(function(item) {
                 if (item.status == 'ok') {
                   console.log('Request for item ' + item.label + ' was successful!');
                 } else {
-                  console.log('Request for item ' + item.label + ' failed with status code: ' + item.statusCode);
+                  console.log('Request for item ' + item.label + ' failed with status code: ' + item.status);
                 }
               });
             } else {
@@ -115,8 +115,8 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
           options.body.color = "#" + col.dColor;
           request(options, function (error, response, body) {
             if (!error) {
-              var bodyJson = JSON.parse(body);
-              bodyJson.forEach(function(item) {
+              var responseBodyJson = JSON.parse(response.body);
+              responseBodyJson.forEach(function(item) {
                 if (item.status == 'ok') {
                   console.log('Request for item ' + item.label + ' was successful!');
                 } else {
@@ -154,8 +154,8 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
       }
       request(options, function (error, response, body) {
         if (!error) {
-          var bodyJson = JSON.parse(body);
-          bodyJson.forEach(function(item) {
+          var responseBodyJson = JSON.parse(response.body);
+          responseBodyJson.forEach(function(item) {
             if (item.status == 'ok') {
               console.log('Request for item ' + item.label + ' was successful!');
             } else {
