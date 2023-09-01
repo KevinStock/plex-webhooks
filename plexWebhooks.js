@@ -85,8 +85,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
           options.body.color = "#" + col.dColor;
           request(options, function (error, response, body) {
             if (!error) {
-              var responseBodyJson = JSON.parse(response.body);
-              responseBodyJson.forEach(function(item) {
+              body.forEach(function(item) {
                 if (item.status == 'ok') {
                   console.log('Request for item ' + item.label + ' was successful!');
                 } else {
@@ -115,8 +114,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
           options.body.color = "#" + col.dColor;
           request(options, function (error, response, body) {
             if (!error) {
-              var responseBodyJson = JSON.parse(response.body);
-              responseBodyJson.forEach(function(item) {
+              body.forEach(function(item) {
                 if (item.status == 'ok') {
                   console.log('Request for item ' + item.label + ' was successful!');
                 } else {
@@ -154,8 +152,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
       }
       request(options, function (error, response, body) {
         if (!error) {
-          var responseBodyJson = JSON.parse(response.body);
-          responseBodyJson.forEach(function(item) {
+          body.forEach(function(item) {
             if (item.status == 'ok') {
               console.log('Request for item ' + item.label + ' was successful!');
             } else {
