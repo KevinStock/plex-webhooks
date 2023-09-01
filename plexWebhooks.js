@@ -176,7 +176,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
 
   // Function to get Key by Value from associative array
   function getKeyByValue(object, value) {
-    return Object.keys(object).find(key => object[key] === value);
+    return Object.keys(object).find(key => object[key].PlexDeviceUUID === value);
   }
 });
 
