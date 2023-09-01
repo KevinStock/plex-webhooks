@@ -65,7 +65,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
     var options = {
       method: 'PUT',
       json: true,
-      url: 'https://api.lifx.com/v1/lights/group:' + light_group + '/state',
+      url: 'https://api.lifx.com/v1/lights/group:' + encodeURIComponent(light_group) + '/state',
       headers: {
          'Authorization': `Bearer ${config.LIFXAUTH}`
       }
@@ -84,7 +84,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
         .then(function(col) {
           options.body.color = "#" + col.dColor;
           request(options, function (error, response, body) {
-            if (!error) {
+            if (!error && (response.statusCode == 200 || response.statusCode == 207)) {
               body.results.forEach(function(item) {
                 if (item.status == 'ok') {
                   console.log('Request for item ' + item.label + ' was successful!');
@@ -93,7 +93,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
                 }
               });
             } else {
-              console.log('Error: ', error);
+              console.log('Status Code: ', response.statusCode, '\nError: ', error);
             }
           });
         })
@@ -113,7 +113,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
         .then(function(col) {
           options.body.color = "#" + col.dColor;
           request(options, function (error, response, body) {
-            if (!error) {
+            if (!error && (response.statusCode == 200 || response.statusCode == 207)) {
               body.results.forEach(function(item) {
                 if (item.status == 'ok') {
                   console.log('Request for item ' + item.label + ' was successful!');
@@ -122,7 +122,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
                 }
               });
             } else {
-              console.log('Error: ', error);
+              console.log('Status Code: ', response.statusCode, '\nError: ', error);
             }
           });
         })
@@ -151,7 +151,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
         }
       }
       request(options, function (error, response, body) {
-        if (!error) {
+        if (!error && (response.statusCode == 200 || response.statusCode == 207)) {
           body.results.forEach(function(item) {
             if (item.status == 'ok') {
               console.log('Request for item ' + item.label + ' was successful!');
@@ -160,7 +160,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
             }
           });
         } else {
-          console.log('Error: ', error);
+          console.log('Status Code: ', response.statusCode, '\nError: ', error);
         }
       });
     }
