@@ -61,7 +61,9 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
 
   // Actions for Known Devices
   if (isKnownDevice(payload.Player.uuid) && payload.Metadata.type != 'track') {
-    var light_group = config.DEVICE_PAIRS[payload.Player.uuid];
+    var deviceConfig = config.DEVICE_PAIRS[getKeyByValue(config.DEVICE_PAIRS, payload.Player.uuid)];
+    var light_group = deviceConfig.LifXGroup;
+    var lightActionOnStop = deviceConfig.lightActionOnStop;
     var options = {
       method: 'PUT',
       json: true,
@@ -133,7 +135,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
     // Media Stopped
     else if (payload.event == 'media.stop') {
       // Only turn the lights on if in the Living Room
-      if (payload.Player.uuid == 'ATV - Living Room') {
+      if (lightActionOnStop == 'on') {
         console.log('Stopped Playing ', mediaTitle);
         console.log('Turning lights up.');
         options.body = {
@@ -169,7 +171,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
 
   // Function to check if Player is a known device
   function isKnownDevice(uuid) {
-    return Object.keys(config.DEVICE_PAIRS).includes(uuid);
+    return Object.values(config.DEVICE_PAIRS).some(device => device.PlexDeviceUUID === uuid);
   }
 
   // Function to get Key by Value from associative array

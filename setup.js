@@ -1,3 +1,4 @@
+// setup.js
 const readline = require('readline');
 const fs = require('fs');
 const axios = require('axios');
@@ -16,7 +17,7 @@ let config = {
 
 // Function to ask for a new pairing
 function askForPairing() {
-  console.log('Please enter Plex Device UUID and Lifx Group ID pairings.');
+  console.log('Please enter Plex Device UUID, Lifx Group ID, and light action on stop pairings.');
   // Prompt the user for LIFX Group ID
   rl.question('Enter your LIFX Group ID (or "done" to finish): ', (lifxGroupId) => {
     if (lifxGroupId.toLowerCase() === 'done') {
@@ -27,11 +28,18 @@ function askForPairing() {
     } else {
       // Prompt the user for Plex Device Name
       rl.question('Enter your Plex Device UUID: ', (plexDeviceUUID) => {
-        // Add the new pairing to the .env content
-        // Format: DEVICE_PAIR=lifxGroupId,plexDeviceName
-        config.DEVICE_PAIRS[plexDeviceUUID] = lifxGroupId;
-        // Ask for another pairing
-        askForPairing();
+        // Prompt the user for light action on stop
+        rl.question('Enter your light action on stop (on/off): ', (lightActionOnStop) => {
+          // Add the new pairing to the .env content
+          // Format: DEVICE_PAIR=lifxGroupId,plexDeviceName
+          config.DEVICE_PAIRS[lifxGroupId] = {
+            PlexDeviceUUID: plexDeviceUUID,
+            LifXGroup: lifxGroupId,
+            lightActionOnStop: lightActionOnStop
+          };
+          // Ask for another pairing
+          askForPairing();
+        });
       });
     }
   });
