@@ -1,4 +1,3 @@
-require('dotenv').load();
 // Dependencies
 const express = require('express');
 const request = require('request');
@@ -7,7 +6,8 @@ const color = require('img-color');
 const app = express();
 const upload = multer({
     dest: '/tmp/'
-  });
+});
+const config = require('./config.json');
 
 // curtosey of leszek.hanusz on stackoverflow
 // https://stackoverflow.com/a/36887315
@@ -38,18 +38,6 @@ console.log = function () {
     log.apply(console, [formatConsoleDate(new Date()) + first_parameter].concat(other_parameters));
 };
 
-
-// Apple TVs
-var APPLETVS = {'LivingRoom': '03D6A088-19FC-42FD-9168-23FDD4A371C1',
-            'Bedroom': '18114917-2071-4486-BDFF-0B87897A8655',
-            'Basement': '73E643FA-7653-4D77-977E-44859DFDF491'}
-
-// LIFX Bulb Groups
-var LIFXGROUPIDS = {'LivingRoom': '258662f1abbffed5d7410280860b9eef',
-                'Bedroom': '93cfa6a8b2266c52e55e5c7c18b3ac44',
-                'Basement': '603d06fdac6d5390eb80d58fcf4e9861'}
-
-
 console.log('Listening...');
 
 app.post('/', upload.single('thumb'), function(req, res, next) {
@@ -57,30 +45,31 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
   console.log('Got webhook for', payload.event);
 
   // Get Media Details
-//  console.log(payload.Metadata);
   var mediaTitle = payload.Metadata.grandparentTitle;
   if (payload.Metadata.live == '1') {
 	  var mediaImage = payload.Metadata.grandparentThumb;
   }
   else if (payload.Metadata.librarySectionType == 'movie'){
-	  var mediaImage = process.env.PLEXADDRESS + payload.Metadata.thumb + '?X-Plex-Token=' + process.env.PLEXTOKEN;
+	  var mediaImage = config.PLEXADDRESS + payload.Metadata.thumb + '?X-Plex-Token=' + config.PLEXTOKEN;
   }
   else {
-  	  var mediaImage = process.env.PLEXADDRESS + payload.Metadata.grandparentThumb + '?X-Plex-Token=' + process.env.PLEXTOKEN;
+  	  var mediaImage = config.PLEXADDRESS + payload.Metadata.grandparentThumb + '?X-Plex-Token=' + config.PLEXTOKEN;
   }
 
   // Log Player ID
-  console.log('Player ID: ' + payload.Player.uuid + ' (' + getKeyByValue(APPLETVS, payload.Player.uuid) + ')');
+  console.log(`Player Name: ${payload.Player.title} (${payload.Player.uuid})`);
 
-  // Actions for Apple TVs
-  if (isAppleTV(payload.Player.uuid) && payload.Metadata.type != 'track') {
-    var light_group = LIFXGROUPIDS[getKeyByValue(APPLETVS, payload.Player.uuid)];
+  // Actions for Known Devices
+  if (isKnownDevice(payload.Player.uuid) && payload.Metadata.type != 'track') {
+    var deviceConfig = config.DEVICE_PAIRS[getKeyByValue(config.DEVICE_PAIRS, payload.Player.uuid)];
+    var light_group = deviceConfig.LifXGroup;
+    var lightActionOnStop = deviceConfig.lightActionOnStop;
     var options = {
       method: 'PUT',
       json: true,
-      url: 'https://api.lifx.com/v1/lights/group_id:' + light_group + '/state',
+      url: 'https://api.lifx.com/v1/lights/group:' + encodeURIComponent(light_group) + '/state',
       headers: {
-         'Authorization': process.env.LIFXAUTH
+         'Authorization': `Bearer ${config.LIFXAUTH}`
       }
     }
 
@@ -96,7 +85,19 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
       color.getDominantColor(mediaImage)
         .then(function(col) {
           options.body.color = "#" + col.dColor;
-          request(options);
+          request(options, function (error, response, body) {
+            if (!error && (response.statusCode == 200 || response.statusCode == 207)) {
+              body.results.forEach(function(item) {
+                if (item.status == 'ok') {
+                  console.log('Request for item ' + item.label + ' was successful!');
+                } else {
+                  console.log('Request for item ' + item.label + ' failed with status code: ' + item.status);
+                }
+              });
+            } else {
+              console.log('Status Code: ', response.statusCode, '\nError: ', error);
+            }
+          });
         })
         .catch(err => console.error(err));
     }
@@ -113,7 +114,19 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
       color.getDominantColor(mediaImage)
         .then(function(col) {
           options.body.color = "#" + col.dColor;
-          request(options);
+          request(options, function (error, response, body) {
+            if (!error && (response.statusCode == 200 || response.statusCode == 207)) {
+              body.results.forEach(function(item) {
+                if (item.status == 'ok') {
+                  console.log('Request for item ' + item.label + ' was successful!');
+                } else {
+                  console.log('Request for item ' + item.label + ' failed with status code: ' + item.statusCode);
+                }
+              });
+            } else {
+              console.log('Status Code: ', response.statusCode, '\nError: ', error);
+            }
+          });
         })
         .catch(err => console.error(err));
 
@@ -122,7 +135,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
     // Media Stopped
     else if (payload.event == 'media.stop') {
       // Only turn the lights on if in the Living Room
-      if (getKeyByValue(APPLETVS, payload.Player.uuid) == 'LivingRoom') {
+      if (lightActionOnStop == 'on') {
         console.log('Stopped Playing ', mediaTitle);
         console.log('Turning lights up.');
         options.body = {
@@ -139,24 +152,31 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
           "power": "off"
         }
       }
-    request(options);
+      request(options, function (error, response, body) {
+        if (!error && (response.statusCode == 200 || response.statusCode == 207)) {
+          body.results.forEach(function(item) {
+            if (item.status == 'ok') {
+              console.log('Request for item ' + item.label + ' was successful!');
+            } else {
+              console.log('Request for item ' + item.label + ' failed with status code: ' + item.statusCode);
+            }
+          });
+        } else {
+          console.log('Status Code: ', response.statusCode, '\nError: ', error);
+        }
+      });
     }
   }
   res.sendStatus(200);
 
-  // Function to check if Player is an AppleTV
-  function isAppleTV(uuid) {
-    for (appleTV in APPLETVS){
-      if (APPLETVS[appleTV] == uuid) {
-        return true;
-      }
-    }
-    return false;
+  // Function to check if Player is a known device
+  function isKnownDevice(uuid) {
+    return Object.values(config.DEVICE_PAIRS).some(device => device.PlexDeviceUUID === uuid);
   }
 
   // Function to get Key by Value from associative array
   function getKeyByValue(object, value) {
-    return Object.keys(object).find(key => object[key] === value);
+    return Object.keys(object).find(key => object[key].PlexDeviceUUID === value);
   }
 });
 
