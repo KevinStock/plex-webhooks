@@ -1,4 +1,3 @@
-require('dotenv').load();
 // Dependencies
 const express = require('express');
 const request = require('request');
@@ -8,6 +7,7 @@ const app = express();
 const upload = multer({
     dest: '/tmp/'
 });
+const config = require('./config.json');
 
 // curtosey of leszek.hanusz on stackoverflow
 // https://stackoverflow.com/a/36887315
@@ -38,13 +38,6 @@ console.log = function () {
     log.apply(console, [formatConsoleDate(new Date()) + first_parameter].concat(other_parameters));
 };
 
-// Device Pairs
-var DEVICE_PAIRS = {};
-for (let i = 1; process.env[`DEVICE_PAIR_${i}`]; i++) {
-  const [lifxGroupId, plexDeviceName] = process.env[`DEVICE_PAIR_${i}`].split(',');
-  DEVICE_PAIRS[plexDeviceName] = lifxGroupId;
-}
-
 console.log('Listening...');
 
 app.post('/', upload.single('thumb'), function(req, res, next) {
@@ -57,24 +50,24 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
 	  var mediaImage = payload.Metadata.grandparentThumb;
   }
   else if (payload.Metadata.librarySectionType == 'movie'){
-	  var mediaImage = process.env.PLEXADDRESS + payload.Metadata.thumb + '?X-Plex-Token=' + process.env.PLEXTOKEN;
+	  var mediaImage = config.PLEXADDRESS + payload.Metadata.thumb + '?X-Plex-Token=' + config.PLEXTOKEN;
   }
   else {
-  	  var mediaImage = process.env.PLEXADDRESS + payload.Metadata.grandparentThumb + '?X-Plex-Token=' + process.env.PLEXTOKEN;
+  	  var mediaImage = config.PLEXADDRESS + payload.Metadata.grandparentThumb + '?X-Plex-Token=' + config.PLEXTOKEN;
   }
 
   // Log Player ID
   console.log('Player Name: ' + payload.Player.title);
 
   // Actions for Known Devices
-  if (isKnownDevice(payload.Player.title) && payload.Metadata.type != 'track') {
-    var light_group = DEVICE_PAIRS[payload.Player.name];
+  if (isKnownDevice(payload.Player.uuid) && payload.Metadata.type != 'track') {
+    var light_group = config.DEVICE_PAIRS[payload.Player.uuid];
     var options = {
       method: 'PUT',
       json: true,
       url: 'https://api.lifx.com/v1/lights/group_id:' + light_group + '/state',
       headers: {
-         'Authorization': `Bearer ${process.env.LIFXAUTH}`
+         'Authorization': `Bearer ${config.LIFXAUTH}`
       }
     }
 
@@ -116,7 +109,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
     // Media Stopped
     else if (payload.event == 'media.stop') {
       // Only turn the lights on if in the Living Room
-      if (payload.Player.title == 'ATV - Living Room') {
+      if (payload.Player.uuid == 'ATV - Living Room') {
         console.log('Stopped Playing ', mediaTitle);
         console.log('Turning lights up.');
         options.body = {
@@ -139,8 +132,8 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
   res.sendStatus(200);
 
   // Function to check if Player is an AppleTV
-  function isKnownDevice(name) {
-    return Object.values(DEVICE_PAIRS).includes(name);
+  function isKnownDevice(uuid) {
+    return Object.values(config.DEVICE_PAIRS).includes(uuid);
   }
 
   // Function to get Key by Value from associative array
