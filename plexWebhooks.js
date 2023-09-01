@@ -84,10 +84,16 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
         .then(function(col) {
           options.body.color = "#" + col.dColor;
           request(options, function (error, response, body) {
-            if (!error && response.statusCode == 200) {
-              console.log('Request successful!');
+            if (!error) {
+              var bodyJson = JSON.parse(body);
+              bodyJson.forEach(function(item) {
+                if (item.status == 'ok') {
+                  console.log('Request for item ' + item.label + ' was successful!');
+                } else {
+                  console.log('Request for item ' + item.label + ' failed with status code: ' + item.statusCode);
+                }
+              });
             } else {
-              console.log('Request failed with status code: ' + response.statusCode);
               console.log('Error: ', error);
             }
           });
@@ -108,10 +114,16 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
         .then(function(col) {
           options.body.color = "#" + col.dColor;
           request(options, function (error, response, body) {
-            if (!error && response.statusCode == 200) {
-              console.log('Request successful!');
+            if (!error) {
+              var bodyJson = JSON.parse(body);
+              bodyJson.forEach(function(item) {
+                if (item.status == 'ok') {
+                  console.log('Request for item ' + item.label + ' was successful!');
+                } else {
+                  console.log('Request for item ' + item.label + ' failed with status code: ' + item.statusCode);
+                }
+              });
             } else {
-              console.log('Request failed with status code: ' + response.statusCode);
               console.log('Error: ', error);
             }
           });
@@ -140,14 +152,20 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
           "power": "off"
         }
       }
-    request(options, function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-        console.log('Request successful!');
-      } else {
-        console.log('Request failed with status code: ' + response.statusCode);
-        console.log('Error: ', error);
-      }
-    });
+      request(options, function (error, response, body) {
+        if (!error) {
+          var bodyJson = JSON.parse(body);
+          bodyJson.forEach(function(item) {
+            if (item.status == 'ok') {
+              console.log('Request for item ' + item.label + ' was successful!');
+            } else {
+              console.log('Request for item ' + item.label + ' failed with status code: ' + item.statusCode);
+            }
+          });
+        } else {
+          console.log('Error: ', error);
+        }
+      });
     }
   }
   res.sendStatus(200);
