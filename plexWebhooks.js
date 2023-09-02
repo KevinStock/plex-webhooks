@@ -78,28 +78,36 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
       // Turn light off.
       console.log('Playing ', mediaTitle);
       console.log('Turning lights down.');
-      options.body = {
+      options.data = {
         "power": "on",
         "brightness": 0.10
       };
       color.getDominantColor(mediaImage)
         .then(function(col) {
-          options.body.color = "#" + col.dColor;
-          request(options, function (error, response, body) {
-            if (!error && (response.statusCode == 200 || response.statusCode == 207)) {
-              body.results.forEach(function(item) {
-                if (item.status == 'ok') {
-                  console.log('Request for item ' + item.label + ' was successful!');
-                } else {
-                  console.log('Request for item ' + item.label + ' failed with status code: ' + item.status);
-                }
-              });
-            } else {
-              console.log('Status Code: ', response.statusCode, '\nError: ', error);
-            }
-          });
-        })
-        .catch(err => console.error(err));
+          options.data = {
+            "power": "on",
+            "brightness": 0.10,
+            "color": "#" + col.dColor
+          };
+          axios(options)
+            .then(function (response) {
+              if (response.status == 200 || response.status == 207) {
+                response.data.results.forEach(function(item) {
+                  if (item.status == 'ok') {
+                    console.log('Request for item ' + item.label + ' was successful!');
+                  } else {
+                    console.log('Request for item ' + item.label + ' failed with status code: ' + item.status);
+                  }
+                });
+              } else {
+                console.log('Status Code: ', response.status, '\nError: ', error);
+              }
+          })
+          .catch(function (error) {
+            console.log('Error: ', error);
+        });
+      })
+      .catch(err => console.error(err));
     }
 
     // Media Paused
