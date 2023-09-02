@@ -1,5 +1,6 @@
 // Dependencies
 const express = require('express');
+const axios = require('axios');
 const request = require('request');
 const multer = require('multer');
 const color = require('img-color');
