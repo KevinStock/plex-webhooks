@@ -1,39 +1,43 @@
-# plex-webhooks
+# Plex Webhooks
 
-## Description
-This is a Node.js application that controls LIFX lights through Plex Webhooks. The color of the lights is determined by the dominant color of the media image being played back. Different behaviors are enabled for different rooms but for all rooms, the lights are dimmed to 25% when playing and increased to 100% when paused.
+This project allows you to control LIFX lights through Plex webhooks. It listens for events from Plex and adjusts the lighting based on the event type (play, pause, stop) and the device that triggered the event.
+
+## Installation
+
+1. Clone this repository to your local machine.
+2. Navigate to the project directory.
+3. Run `npm install` to install all the necessary dependencies.
 
 ## Setup
-1. Run `npm install` to install all dependencies.
-2. Run `npm run setup` to generate the `config.json` file.
-- PLEXADDRESS is your Plex server URL.
-- PLEXTOKEN is your Plex Authentication Token
-- LIFXAUTH is your LIFX Authentication Token
-- DEVICE_PAIRS are paired Plex Devices with LifX lights.
-  - The LifX Group is the name of the group of lights to control.
-  - The Plex Device UUID is the UUID of the device running a Plex client.
-  - The Light Action on Stop is the behavior of the lights when media is stopped (on / off)
-3. Run npm run start to start the application.
 
-## Dependencies
-The application depends on the following npm packages:
-1. express
-2. multer
-3. request
-4. img-color
-5. dotenv
+1. Run `npm run setup` to start the setup process.
+2. You will be prompted to enter your Plex server URL, Plex Authentication Token, and LIFX Authentication Token. Enter these details as prompted.
+3. Next, you will be asked to enter a series of device pairings. For each pairing, you will need to enter a Plex Device UUID, a LIFX Group ID, and a light action on stop (either 'on' or 'off').
+4. Once you have entered all your pairings, type 'done' to finish the setup process. A `config.json` file will be created with your entered details.
 
-## Configuration
-The application uses a config.json file to store configuration details. This file is created by the setup.js script during the setup process. The script prompts the user to enter their Plex server URL, Plex Authentication Token, and LIFX Authentication Token. It also allows the user to enter multiple pairings of Plex Device UUIDs, Lifx Group IDs, and light actions on stop.
+## Running the Application
 
-### Version
-The current version of the application is 0.1.0.
+1. Run `npm start` to start the application.
+2. The application will now listen for Plex webhook events and adjust your LIFX lights accordingly.
 
-### License
+## Additional Tools and Details
+
+### Plex Device UUID
+
+The `UuidHelper.js` script can be used to log the UUID of any device that triggers a Plex webhook event. This can be useful for finding the UUID of a device to use in the setup process. To use this script, run `node UuidHelper.js` and trigger a Plex webhook event from the device you want to find the UUID of.
+
+### Plex Auth Token
+
+See this page for instuctions on retrieving your Plex Auth token: https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
+
+### Plex Webhooks
+
+See this page for details on setting up Plex Webhooks. The Plex URL used in this application is the full URL and port of your Plex instance (e.g. `http://192.168.1.10:32400`). Plex Webhooks should be setup according to where the plexWebhooks.js is accessible by Plex and the port plexWebhooks is running on, which is set to 3101.
+
+## Author
+
+Kevin Stock - [kevin@kevinstock.net](mailto:kevin@kevinstock.net) - [http://www.kevinstock.net](http://www.kevinstock.net)
+
+## License
+
 This project is licensed under the MIT License.
-
-### Contact
-If you have any questions or suggestions, feel free to open an issue or pull request.
-
-### Acknowledgements
-Thanks to all contributors and users for their support.
