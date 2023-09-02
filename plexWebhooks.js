@@ -125,7 +125,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
           axios(options)
             .then(function (response) {
               if (response.status == 200 || response.status == 207) {
-                response.body.results.forEach(function(item) {
+                response.data.results.forEach(function(item) {
                   if (item.status == 'ok') {
                     console.log('Request for item ' + item.label + ' was successful!');
                   } else {
@@ -154,7 +154,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
       axios(options)
         .then(function (response) {
           if (response.status == 200 || response.status == 207) {
-            response.body.results.forEach(function(item) {
+            response.data.results.forEach(function(item) {
               if (item.status == 'ok') {
                 console.log('Request for item ' + item.label + ' was successful!');
               } else {
