@@ -2,7 +2,6 @@
 const express = require('express');
 const axios = require('axios');
 const multer = require('multer');
-const color = require('img-color');
 const ColorThief = require('colorthief');
 const app = express();
 const upload = multer({
@@ -90,14 +89,6 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
             "brightness": 0.10,
             "color": rgbToHex(r, g, b)
           };
-        
-      // color.getDominantColor(mediaImage)
-      //   .then(function(col) {
-      //     options.data = {
-      //       "power": "on",
-      //       "brightness": 0.10,
-      //       "color": "#" + col.dColor
-      //     };
           axios(options)
             .then(function (response) {
               if (response.status == 200 || response.status == 207) {
@@ -124,12 +115,12 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
       // Turn light on.
       console.log('Pausing ', mediaTitle);
       console.log('Turning lights up.');
-      color.getDominantColor(mediaImage)
-        .then(function(col) {
+      ColorThief.getColor(mediaImage)
+        .then(function([r, g, b]) {
           options.data = {
             "power": "on",
-            "brightness": 0.5,
-            "color": "#" + col.dColor
+            "brightness": 0.10,
+            "color": rgbToHex(r, g, b)
           };
           axios(options)
             .then(function (response) {
