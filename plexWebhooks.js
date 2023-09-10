@@ -2,7 +2,7 @@
 const express = require('express');
 const axios = require('axios');
 const multer = require('multer');
-const color = require('img-color');
+const ColorThief = require('colorthief');
 const app = express();
 const upload = multer({
     dest: '/tmp/'
@@ -82,12 +82,12 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
         "power": "on",
         "brightness": 0.10
       };
-      color.getDominantColor(mediaImage)
-        .then(function(col) {
+      ColorThief.getColor(mediaImage)
+        .then(function([r, g, b]) {
           options.data = {
             "power": "on",
             "brightness": 0.10,
-            "color": "#" + col.dColor
+            "color": rgbToHex(r, g, b)
           };
           axios(options)
             .then(function (response) {
@@ -115,12 +115,12 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
       // Turn light on.
       console.log('Pausing ', mediaTitle);
       console.log('Turning lights up.');
-      color.getDominantColor(mediaImage)
-        .then(function(col) {
+      ColorThief.getColor(mediaImage)
+        .then(function([r, g, b]) {
           options.data = {
             "power": "on",
             "brightness": 0.5,
-            "color": "#" + col.dColor
+            "color": rgbToHex(r, g, b)
           };
           axios(options)
             .then(function (response) {
@@ -182,6 +182,12 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
   function getKeyByValue(object, value) {
     return Object.keys(object).find(key => object[key].PlexDeviceUUID === value);
   }
+
+  // Function to convert RGB to HEX
+  const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
+    const hex = x.toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  }).join('')
 });
 
 app.listen(3101);
