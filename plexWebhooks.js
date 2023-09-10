@@ -85,7 +85,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
       };
       ColorThief.getColor(mediaImage)
         .then(function(col) {
-          optionss.data = {
+          options.data = {
             "power": "on",
             "brightness": 0.10,
             "color": "#" + col
