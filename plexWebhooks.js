@@ -88,7 +88,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
           options.data = {
             "power": "on",
             "brightness": 0.10,
-            "color": "#" + col
+            "color": rgbToHex(col)
           };
         
       // color.getDominantColor(mediaImage)
@@ -191,6 +191,12 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
   function getKeyByValue(object, value) {
     return Object.keys(object).find(key => object[key].PlexDeviceUUID === value);
   }
+
+  // Function to convert RGB to HEX
+  const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
+    const hex = x.toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  }).join('')
 });
 
 app.listen(3101);
