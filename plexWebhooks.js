@@ -84,11 +84,11 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
         "brightness": 0.10
       };
       ColorThief.getColor(mediaImage)
-        .then(function(col) {
+        .then(function(r, g, b) {
           options.data = {
             "power": "on",
             "brightness": 0.10,
-            "color": rgbToHex(col)
+            "color": rgbToHex(r, g, b)
           };
         
       // color.getDominantColor(mediaImage)
