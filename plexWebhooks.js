@@ -3,6 +3,7 @@ const express = require('express');
 const axios = require('axios');
 const multer = require('multer');
 const color = require('img-color');
+const ColorThief = require('colorthief');
 const app = express();
 const upload = multer({
     dest: '/tmp/'
@@ -82,13 +83,21 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
         "power": "on",
         "brightness": 0.10
       };
-      color.getDominantColor(mediaImage)
+      ColorThief.getColor(mediaImage)
         .then(function(col) {
-          options.data = {
+          optionss.data = {
             "power": "on",
             "brightness": 0.10,
-            "color": "#" + col.dColor
+            "color": "#" + col
           };
+        
+      // color.getDominantColor(mediaImage)
+      //   .then(function(col) {
+      //     options.data = {
+      //       "power": "on",
+      //       "brightness": 0.10,
+      //       "color": "#" + col.dColor
+      //     };
           axios(options)
             .then(function (response) {
               if (response.status == 200 || response.status == 207) {
