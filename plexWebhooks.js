@@ -119,7 +119,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
         .then(function([r, g, b]) {
           options.data = {
             "power": "on",
-            "brightness": 0.10,
+            "brightness": 0.5,
             "color": rgbToHex(r, g, b)
           };
           axios(options)
