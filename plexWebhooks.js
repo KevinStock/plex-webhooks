@@ -8,35 +8,12 @@ const upload = multer({
     dest: '/tmp/'
 });
 const config = require('./config.json');
+const logger = require('./utils/logger');
+const { rgbToHex } = require('./utils/color');
+const { isKnownDevice, getKeyByValue } = require('./utils/device');
 
-// curtosey of leszek.hanusz on stackoverflow
-// https://stackoverflow.com/a/36887315
-// add timestamp to log messages
-var log = console.log;
-
-console.log = function () {
-    var first_parameter = arguments[0];
-    var other_parameters = Array.prototype.slice.call(arguments, 1);
-
-    function formatConsoleDate (date) {
-        var hour = date.getHours();
-        var minutes = date.getMinutes();
-        var seconds = date.getSeconds();
-        var milliseconds = date.getMilliseconds();
-
-        return '[' +
-               ((hour < 10) ? '0' + hour: hour) +
-               ':' +
-               ((minutes < 10) ? '0' + minutes: minutes) +
-               ':' +
-               ((seconds < 10) ? '0' + seconds: seconds) +
-               '.' +
-               ('00' + milliseconds).slice(-3) +
-               '] ';
-    }
-
-    log.apply(console, [formatConsoleDate(new Date()) + first_parameter].concat(other_parameters));
-};
+// Initialize logger
+logger();
 
 console.log('Listening...');
 
@@ -60,7 +37,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
   console.log(`Player Name: ${payload.Player.title} (${payload.Player.uuid})`);
 
   // Actions for Known Devices
-  if (isKnownDevice(payload.Player.uuid) && payload.Metadata.type != 'track') {
+  if (isKnownDevice(payload.Player.uuid, config) && payload.Metadata.type != 'track') {
     var deviceConfig = config.DEVICE_PAIRS[getKeyByValue(config.DEVICE_PAIRS, payload.Player.uuid)];
     var light_group = deviceConfig.LifXGroup;
     var lightActionOnStop = deviceConfig.lightActionOnStop;
@@ -87,6 +64,9 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
           options.data = {
             "power": "on",
             "brightness": 0.10,
+            "color": rgb,
+            "power": "on",
+            "brightness": 0.10,
             "color": rgbToHex(r, g, b)
           };
           axios(options)
@@ -109,7 +89,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
       })
       .catch(err => console.error(err));
     }
-
+  
     // Media Paused
     else if (payload.event == 'media.pause') {
       // Turn light on.
@@ -142,7 +122,7 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
         })
         .catch(err => console.error(err));
     }
-
+  
     // Media Stopped
     else if (payload.event == 'media.stop') {
       // Only turn the lights on if in the Living Room
@@ -172,22 +152,6 @@ app.post('/', upload.single('thumb'), function(req, res, next) {
     }
   }
   res.sendStatus(200);
-
-  // Function to check if Player is a known device
-  function isKnownDevice(uuid) {
-    return Object.values(config.DEVICE_PAIRS).some(device => device.PlexDeviceUUID === uuid);
-  }
-
-  // Function to get Key by Value from associative array
-  function getKeyByValue(object, value) {
-    return Object.keys(object).find(key => object[key].PlexDeviceUUID === value);
-  }
-
-  // Function to convert RGB to HEX
-  const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
-    const hex = x.toString(16)
-    return hex.length === 1 ? '0' + hex : hex
-  }).join('')
-});
-
-app.listen(3101);
+  });
+  
+  app.listen(3101);
